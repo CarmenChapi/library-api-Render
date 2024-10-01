@@ -27,3 +27,27 @@ exports.fetchUserById = (id: string) => {
       return user.data();
     });
 };
+
+exports.newBookLibrary = (book: any, username: string) => {
+  console.log( book.etag, typeof book.etag)
+  console.log("we made it!!")
+  return db
+  .collection("users")
+  .doc(username)
+  .collection("books")
+  .doc(book.industryIdentifiers[0].identifier)
+  .set(book)
+  .then(() => {
+    return db
+    .collection("users") 
+    .doc(username)
+    .collection("books")
+    .doc(book.industryIdentifiers[0].identifier)
+    .get()
+      .then((book) => {
+        return book.data();
+      })
+      
+  });
+
+}
