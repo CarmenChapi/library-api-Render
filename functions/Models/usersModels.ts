@@ -29,8 +29,7 @@ exports.fetchUserById = (id: string) => {
 };
 
 exports.newBookLibrary = (book: any, username: string) => {
-  console.log( book.etag, typeof book.etag)
-  console.log("we made it!!")
+
   return db
   .collection("users")
   .doc(username)
@@ -56,6 +55,43 @@ exports.fetchBooksById =(username: string) => {
     .collection("users")
     .doc(username)
     .collection("books")
+    .get()
+    .then((books : any) => {
+      const bookArray : any[]= []
+      books.forEach((book : any) => {
+        bookArray.push(book.data())
+      })
+      return bookArray;
+    });
+};
+
+exports.newBookWishList= (book: any, username: string) => {
+
+  return db
+  .collection("users")
+  .doc(username)
+  .collection("wishlist")
+  .doc(book.industryIdentifiers[0].identifier)
+  .set(book)
+  .then(() => {
+    return db
+    .collection("users") 
+    .doc(username)
+    .collection("wishlist")
+    .doc(book.industryIdentifiers[0].identifier)
+    .get()
+      .then((book) => {
+        return book.data();
+      })
+      
+  });
+}
+
+exports.fetchWishListById =(username: string) => {
+  return db
+    .collection("users")
+    .doc(username)
+    .collection("wishlist")
     .get()
     .then((books : any) => {
       const bookArray : any[]= []
