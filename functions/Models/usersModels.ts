@@ -49,5 +49,19 @@ exports.newBookLibrary = (book: any, username: string) => {
       })
       
   });
-
 }
+
+exports.fetchBooksById =(username: string) => {
+  return db
+    .collection("users")
+    .doc(username)
+    .collection("books")
+    .get()
+    .then((books : any) => {
+      const bookArray : any[]= []
+      books.forEach((book : any) => {
+        bookArray.push(book.data())
+      })
+      return bookArray;
+    });
+};
