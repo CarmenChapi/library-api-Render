@@ -2,7 +2,7 @@ import { NextFunction } from "express";
 import express, { Request, Response } from "express";
 import { object } from "firebase-functions/v1/storage";
 
-const { newUser, fetchUserById, newBookLibrary, fetchBooksById} = require("../Models/usersModels");
+const { newUser, fetchUserById, newBookLibrary, fetchBooksById, newBookWishList, fetchWishListById} = require("../Models/usersModels");
 
 exports.postUser = (req: Request, res: Response, next: NextFunction) => {
   const { body } = req;
@@ -46,6 +46,31 @@ exports.postBookLibrary = (req: Request, res: Response, next: NextFunction) => {
 exports.getAllBooksByUsername = (req: Request, res: Response, next: NextFunction) => {
   const { username } = req.params;
   fetchBooksById(username)
+    .then((books: object[]) => {
+      res.status(200).send(books);
+    })
+    .catch((err: any) => {
+      console.log(err);
+      next(err);
+    });
+};
+
+exports.postBookWishList= (req: Request, res: Response, next: NextFunction) => {
+  const { body } = req;
+  const {username} = req.params;
+  newBookWishList(body, username)
+    .then((newBook: object) => {
+      res.status(201).send(newBook);
+    })
+    .catch((err: any) => {
+      console.log(err);
+      next(err);
+    });
+};
+
+exports.getAllWishListByUsername= (req: Request, res: Response, next: NextFunction) => {
+  const { username } = req.params;
+  fetchWishListById(username)
     .then((books: object[]) => {
       res.status(200).send(books);
     })
