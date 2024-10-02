@@ -1,16 +1,30 @@
 const request = require("supertest");
 import { app } from "../src/index";
+const data = require("../../books.js");
+
 describe("POST /api/users/newuser", () => {
   it("create a new user", () => {
     return request(app)
       .post("/api/users/newuser")
-      .send({ username: `Jdawg6000`, name: "Jdawg" })
+      .send({ username: `example123`, name: "Jdawg" })
       .expect(201)
       .then((res: any) => {
         expect(res.body.name).toBe("Jdawg");
       });
   });
 });
+
+describe.skip("/api/users/:username/books", () => {
+  it("POST 201: posts seed data to books by user ID", () => {
+    data.forEach((book: object) => {
+      return request(app)
+        .post("/api/users/example123/books")
+        .send(book)
+        .then(() => {});
+    });
+  });
+});
+
 describe("get /api/users/:username", () => {
   it("user by id", () => {
     return request(app)
@@ -23,7 +37,7 @@ describe("get /api/users/:username", () => {
 });
 
 describe("POST /api/users/:username/books", () => {
-  it.only("posting 1 book info", () => {
+  it("posting 1 book info", () => {
     return request(app)
       .post("/api/users/joshua2410/books")
       .send({
@@ -234,5 +248,30 @@ describe("/api/users/:username/wishlist/:bookid", () => {
     return request(app)
       .delete("/api/users/joshua2410/wishlist/1781100500")
       .expect(204);
+  });
+});
+
+describe("/api/users/:username/friendsRequests", () => {
+  it("POST 201: add user to friends request by Id", () => {
+    return request(app)
+      .post("/api/users/example123/friendRequests")
+      .send({
+        username: "joshua2410",
+      })
+      .expect(201)
+      .then((res: any) => {
+        expect(res.body.username).toBe("joshua2410");
+      });
+  });
+  it("POST 404: fails to add user to friends request by Id", () => {
+    return request(app)
+      .post("/api/users/example123/friendRequests")
+      .send({
+        username: "joshua24",
+      })
+      .expect(404)
+      .then((res: any) => {
+        expect(res.body.msg).toBe("not found");
+      });
   });
 });

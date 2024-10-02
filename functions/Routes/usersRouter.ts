@@ -10,6 +10,7 @@ const {
   getWishlistBookById,
   deleteBookById,
   deleteWishlistBookById,
+  postFriendRequest,
 } = require("../Controllers/usersControllers");
 
 const usersRouter = express.Router();
@@ -37,5 +38,7 @@ usersRouter
   .route("/:username/wishlist/:bookid")
   .get(getWishlistBookById)
   .delete(deleteWishlistBookById);
+
+usersRouter.route("/:username/friendRequests").post(postFriendRequest);
 
 module.exports = usersRouter;
