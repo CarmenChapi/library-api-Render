@@ -13,6 +13,7 @@ const {
   fetchWishlistBookById,
   removeBookById,
   removeWishlistBookById,
+  addFriendRequest,
 } = require("../Models/usersModels");
 
 exports.postUser = (req: Request, res: Response, next: NextFunction) => {
@@ -154,6 +155,22 @@ exports.deleteWishlistBookById = (
     })
     .catch((err: any) => {
       console.log(err);
+      next(err);
+    });
+};
+
+exports.postFriendRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username } = req.params;
+  const { body } = req;
+  addFriendRequest(username, body)
+    .then((friendname: any) => {
+      res.status(201).send(friendname);
+    })
+    .catch((err: any) => {
       next(err);
     });
 };

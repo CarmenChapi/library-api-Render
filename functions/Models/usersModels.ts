@@ -141,3 +141,34 @@ exports.fetchWishlistBookById = (username: string, bookId: any) => {
       return book.data();
     });
 };
+
+exports.addFriendRequest = (username: string, friendRequest: any) => {
+  return db
+    .collection("users")
+    .doc(friendRequest.username)
+    .get()
+    .then((user) => {
+      const userData = user.data();
+      if (userData) {
+        return db
+          .collection("users")
+          .doc(username)
+          .collection("friendRequests")
+          .doc(friendRequest.username)
+          .set(friendRequest)
+          .then(() => {
+            return db
+              .collection("users")
+              .doc(username)
+              .collection("friendRequests")
+              .doc(friendRequest.username)
+              .get();
+          })
+          .then((user: any) => {
+            return user.data();
+          });
+      } else {
+        return Promise.reject({ status: 404, msg: "not found" });
+      }
+    });
+};
