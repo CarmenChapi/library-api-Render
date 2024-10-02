@@ -29,18 +29,20 @@ exports.fetchUserById = (id: string) => {
 };
 
 exports.newBookLibrary = (book: any, username: string) => {
+  // const newBook = {...book, }
+  // }
   return db
     .collection("users")
     .doc(username)
     .collection("books")
-    .doc(book.industryIdentifiers[0].identifier)
+    .doc(book.bookInfo.industryIdentifiers[0].identifier)
     .set(book)
     .then(() => {
       return db
         .collection("users")
         .doc(username)
         .collection("books")
-        .doc(book.industryIdentifiers[0].identifier)
+        .doc(book.bookInfo.industryIdentifiers[0].identifier)
         .get()
         .then((book) => {
           return book.data();
@@ -172,3 +174,114 @@ exports.addFriendRequest = (username: string, friendRequest: any) => {
       }
     });
 };
+
+
+exports.acceptFriendRequest= (username: string, friendToAccept: any) => {
+  return db
+    .collection("users")
+    .doc(username)
+    .collection("friendRequests")
+    .doc(friendToAccept.username)
+    .get()
+    .then((user) => {
+   
+      const userData = user.data();
+      console.log(userData,'<----userData Model')
+      if (userData) {
+        return db
+          .collection("users")
+          .doc(username)
+          .collection("friends")
+          .doc(friendToAccept.username)
+          .set(friendToAccept)
+          .then(() => {
+            return db
+            .collection("users")
+            .doc(username)
+            .collection("friendRequests")
+            .doc(friendToAccept.username)
+            .delete()
+          })
+          .then(()=>{
+            return db
+          .collection("users")
+          .doc(friendToAccept.username)
+          .collection("friends")
+          .doc(username)
+          .set({"username": username})
+          })
+          .then(() => {
+            return db
+              .collection("users")
+              .doc(username)
+              .collection("friends")
+              .doc(friendToAccept.username)
+              .get();
+
+          })
+          .then((user: any) => {
+            return user.data();
+          });
+      } else {
+        return Promise.reject({ status: 404, msg: "not found" });
+      }
+    });
+};
+
+exports.fetchFriendsList = (username: string) => {
+  return db
+  .collection("users")
+  .doc(username)
+  .collection("friends")
+  .get()
+  .then((friends : any) => {
+    const friendsArray: any[] = [];
+    console.log(friends)
+    friends.forEach((friend: any) => {
+      friendsArray.push(friend.data());
+    });
+    return friendsArray;
+  })
+}
+
+exports.fetchReqFriendsList = (username: string) => {
+  return db
+  .collection("users")
+  .doc(username)
+  .collection("friendRequests")
+  .get()
+  .then((friends : any) => {
+    const friendsArray: any[] = [];
+    console.log(friends)
+    friends.forEach((friend: any) => {
+      friendsArray.push(friend.data());
+    });
+    return friendsArray;
+  })
+}
+
+exports.postRequestToBorrow= (borrower: string, owner: string, bookId: string) => {
+  return db
+  .collection("users")
+  .doc(owner)
+  .collection("borrowRequest")
+  .doc(borrower  +'_'+ bookId)
+  .set({"username" : borrower, "bookRequest" : bookId})
+}
+
+exports.getRequestToBorrow = (owner: string, bookId: string) => {
+  return db
+  .collection("users")
+  .doc(owner)
+  .collection("borrowRequest")
+  .get()
+  .then((requestInfo : any) => {
+    const requestArray: any[] = [];
+    console.log(requestInfo)
+    requestInfo.forEach((request: any) => {
+      console.log(request.data())
+      requestArray.push(request.data());
+    });
+    return requestArray;
+  })
+}

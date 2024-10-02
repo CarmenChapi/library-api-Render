@@ -11,6 +11,11 @@ const {
   deleteBookById,
   deleteWishlistBookById,
   postFriendRequest,
+  postAceptFriendRequest,
+  getFriendsList,
+  getFriendRequestsList,
+  requestBookToBorrow,
+  getRequestsByBook
 } = require("../Controllers/usersControllers");
 
 const usersRouter = express.Router();
@@ -39,6 +44,12 @@ usersRouter
   .get(getWishlistBookById)
   .delete(deleteWishlistBookById);
 
-usersRouter.route("/:username/friendRequests").post(postFriendRequest);
+usersRouter.route("/:username/friendrequests").post(postFriendRequest);
+usersRouter.route("/:username/acceptfriend").post(postAceptFriendRequest)
+usersRouter.route("/:username/friends").get(getFriendsList)
+usersRouter.route("/:username/friendrequests").get(getFriendRequestsList)
+usersRouter.route("/:borrower/books/:bookid/requestlend/:owner").post(requestBookToBorrow)
+usersRouter.route("/:owner/books/:bookid/requestList").get(getRequestsByBook)
+
 
 module.exports = usersRouter;
