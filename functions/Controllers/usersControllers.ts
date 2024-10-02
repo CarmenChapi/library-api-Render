@@ -14,6 +14,11 @@ const {
   removeBookById,
   removeWishlistBookById,
   addFriendRequest,
+  acceptFriendRequest,
+  fetchFriendsList,
+  fetchReqFriendsList,
+  postRequestToBorrow,
+  getRequestToBorrow
 } = require("../Models/usersModels");
 
 exports.postUser = (req: Request, res: Response, next: NextFunction) => {
@@ -174,3 +179,90 @@ exports.postFriendRequest = (
       next(err);
     });
 };
+
+exports.postAceptFriendRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username } = req.params;
+  const { body } = req;
+  console.log(username, body)
+  acceptFriendRequest(username, body)
+    .then((friendname: any) => {
+      res.status(201).send(friendname);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+  }
+
+
+
+  exports.getFriendsList = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { username } = req.params;
+    console.log(username)
+    fetchFriendsList(username)
+      .then((friends: object []) => {
+        res.status(200).send(friends);
+      })
+      .catch((err: any) => {
+        console.log(err);
+        next(err);
+      });
+  };
+
+  exports.getFriendRequestsList = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { username } = req.params;
+    fetchReqFriendsList(username)
+      .then((friends: object []) => {
+        res.status(200).send(friends);
+      })
+      .catch((err: any) => {
+        console.log(err);
+        next(err);
+      });
+  };
+
+  exports.requestBookToBorrow = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { borrower, owner, bookid } = req.params;
+    console.log(borrower, owner, bookid)
+    postRequestToBorrow(borrower, owner, bookid)
+      .then(() => {
+        res.status(201).send();
+      })
+      .catch((err: any) => {
+        console.log(err);
+        next(err);
+      });
+  };
+
+
+  exports.getRequestsByBook = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { owner, bookid } = req.params;
+    console.log( owner, bookid)
+    getRequestToBorrow( owner, bookid)
+      .then((requestList : any) => {
+        res.status(200).send(requestList);
+      })
+      .catch((err: any) => {
+        console.log(err);
+        next(err);
+      });
+  };
