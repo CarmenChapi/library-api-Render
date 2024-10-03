@@ -21,6 +21,10 @@ const {
   getRequestToBorrow,
   acceptRequest,
   fetchLending,
+  fetchBorrowing,
+  removeFriendRequest,
+  removeBorrowRequest,
+  returnBorrowedBookById,
 } = require("../Models/usersModels");
 
 exports.postUser = (req: Request, res: Response, next: NextFunction) => {
@@ -63,7 +67,8 @@ exports.getAllBooksByUsername = (
   next: NextFunction
 ) => {
   const { username } = req.params;
-  fetchBooksById(username)
+  const { lendable } = req.query;
+  fetchBooksById(username, lendable)
     .then((books: object[]) => {
       res.status(200).send(books);
     })
@@ -263,11 +268,63 @@ exports.postAcceptedRequest = (
 };
 
 exports.getLending = (req: Request, res: Response, next: NextFunction) => {
-  console.log("chilling in controller");
   const { owner } = req.params;
   fetchLending(owner)
+    .then((lendingList: any) => {
+      res.status(200).send(lendingList);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
+
+exports.getBorrowing = (req: Request, res: Response, next: NextFunction) => {
+  const { borrower } = req.params;
+  console.log(borrower, "borrower");
+  fetchBorrowing(borrower)
     .then((borrowList: any) => {
       res.status(200).send(borrowList);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
+
+exports.deleteFriendRequestById = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username, rejectfriend } = req.params;
+  removeFriendRequest(username, rejectfriend)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
+
+exports.deleteBorrowRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username, bookid } = req.params;
+  removeBorrowRequest(username, bookid)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
+
+exports.returnBookById = (req: Request, res: Response, next: NextFunction) => {
+  const { borrower, owner, bookid } = req.params;
+  returnBorrowedBookById(borrower, owner, bookid)
+    .then(() => {
+      res.status(204).send();
     })
     .catch((err: any) => {
       next(err);
