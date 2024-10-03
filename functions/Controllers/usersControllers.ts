@@ -18,18 +18,18 @@ const {
   fetchFriendsList,
   fetchReqFriendsList,
   postRequestToBorrow,
-  getRequestToBorrow
+  getRequestToBorrow,
+  acceptRequest,
+  fetchLending,
 } = require("../Models/usersModels");
 
 exports.postUser = (req: Request, res: Response, next: NextFunction) => {
   const { body } = req;
-  console.log("you made it");
   newUser(body)
     .then((newUser: object) => {
       res.status(201).send(newUser);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -41,7 +41,6 @@ exports.getUserById = (req: Request, res: Response, next: NextFunction) => {
       res.status(200).send(user);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -54,7 +53,6 @@ exports.postBookLibrary = (req: Request, res: Response, next: NextFunction) => {
       res.status(201).send(newBook);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -70,7 +68,6 @@ exports.getAllBooksByUsername = (
       res.status(200).send(books);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -87,7 +84,6 @@ exports.postBookWishList = (
       res.status(201).send(newBook);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -103,7 +99,6 @@ exports.getAllWishListByUsername = (
       res.status(200).send(books);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -115,7 +110,6 @@ exports.getBookById = (req: Request, res: Response, next: NextFunction) => {
       res.status(200).send(book);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -131,7 +125,6 @@ exports.getWishlistBookById = (
       res.status(200).send(book);
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -143,7 +136,6 @@ exports.deleteBookById = (req: Request, res: Response, next: NextFunction) => {
       res.status(204).send();
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -159,7 +151,6 @@ exports.deleteWishlistBookById = (
       res.status(204).send();
     })
     .catch((err: any) => {
-      console.log(err);
       next(err);
     });
 };
@@ -187,7 +178,7 @@ exports.postAceptFriendRequest = (
 ) => {
   const { username } = req.params;
   const { body } = req;
-  console.log(username, body)
+  console.log(username, body);
   acceptFriendRequest(username, body)
     .then((friendname: any) => {
       res.status(201).send(friendname);
@@ -195,74 +186,90 @@ exports.postAceptFriendRequest = (
     .catch((err: any) => {
       next(err);
     });
-  }
+};
 
+exports.getFriendsList = (req: Request, res: Response, next: NextFunction) => {
+  const { username } = req.params;
+  console.log(username);
+  fetchFriendsList(username)
+    .then((friends: object[]) => {
+      res.status(200).send(friends);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
 
+exports.getFriendRequestsList = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username } = req.params;
+  fetchReqFriendsList(username)
+    .then((friends: object[]) => {
+      res.status(200).send(friends);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
 
-  exports.getFriendsList = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const { username } = req.params;
-    console.log(username)
-    fetchFriendsList(username)
-      .then((friends: object []) => {
-        res.status(200).send(friends);
-      })
-      .catch((err: any) => {
-        console.log(err);
-        next(err);
-      });
-  };
+exports.requestBookToBorrow = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { borrower, owner, bookid } = req.params;
+  console.log(borrower, owner, bookid);
+  postRequestToBorrow(borrower, owner, bookid)
+    .then(() => {
+      res.status(201).send();
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
 
-  exports.getFriendRequestsList = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const { username } = req.params;
-    fetchReqFriendsList(username)
-      .then((friends: object []) => {
-        res.status(200).send(friends);
-      })
-      .catch((err: any) => {
-        console.log(err);
-        next(err);
-      });
-  };
+exports.getRequestsByBook = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { owner, bookid } = req.params;
+  console.log(owner, bookid);
+  getRequestToBorrow(owner, bookid)
+    .then((requestList: any) => {
+      res.status(200).send(requestList);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
 
-  exports.requestBookToBorrow = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const { borrower, owner, bookid } = req.params;
-    console.log(borrower, owner, bookid)
-    postRequestToBorrow(borrower, owner, bookid)
-      .then(() => {
-        res.status(201).send();
-      })
-      .catch((err: any) => {
-        console.log(err);
-        next(err);
-      });
-  };
+exports.postAcceptedRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { owner, bookid, borrower } = req.params;
+  acceptRequest(owner, bookid, borrower)
+    .then(() => {
+      res.status(201).send();
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
 
-
-  exports.getRequestsByBook = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const { owner, bookid } = req.params;
-    console.log( owner, bookid)
-    getRequestToBorrow( owner, bookid)
-      .then((requestList : any) => {
-        res.status(200).send(requestList);
-      })
-      .catch((err: any) => {
-        console.log(err);
-        next(err);
-      });
-  };
+exports.getLending = (req: Request, res: Response, next: NextFunction) => {
+  console.log("chilling in controller");
+  const { owner } = req.params;
+  fetchLending(owner)
+    .then((borrowList: any) => {
+      res.status(200).send(borrowList);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};

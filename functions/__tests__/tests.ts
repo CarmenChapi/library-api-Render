@@ -31,7 +31,7 @@ describe("get /api/users/:username", () => {
       .get("/api/users/joshua2410")
       .expect(200)
       .then((res: any) => {
-        console.log(res.body)
+        console.log(res.body);
         expect(res.body.name).toBe("josh");
       });
   });
@@ -42,13 +42,13 @@ describe.only("POST /api/users/:username/books", () => {
     return request(app)
       .post("/api/users/joshua2410/books")
       .send({
-        owned : true,
+        owned: true,
         physical: true,
-        lendable : true,
+        lendable: true,
         notes: "This book changes my life",
         review: "This book is very prentenciuos",
-        rating : 3,
-        read : true,
+        rating: 3,
+        read: true,
         bookInfo: {
           title: "Harry Potter and the Chamber of Secrets",
           authors: ["J.K. Rowling"],
@@ -116,12 +116,13 @@ describe.only("POST /api/users/:username/books", () => {
             "https://play.google.com/store/books/details?id=5iTebBW-w7QC&source=gbs_api",
           canonicalVolumeLink:
             "https://play.google.com/store/books/details?id=5iTebBW-w7QC",
-        }
-        }
-       )
+        },
+      })
       .expect(201)
       .then((res: any) => {
-        expect(res.body.bookInfo.title).toBe("Harry Potter and the Chamber of Secrets");
+        expect(res.body.bookInfo.title).toBe(
+          "Harry Potter and the Chamber of Secrets"
+        );
       });
   });
 });
@@ -286,69 +287,87 @@ describe("/api/users/:username/friendsRequests", () => {
   });
 });
 
-
-describe("/api/users/:username/acceptfriend",() => {
-  it("POST 201 accept a friend request", () =>{
+describe("/api/users/:username/acceptfriend", () => {
+  it("POST 201 accept a friend request", () => {
     return request(app)
-    .post("/api/users/example123/acceptfriend")
-    .send({
-      username: "joshua2410"
-    })
-    .expect(201)
-    .then(( res: any) => {
-      expect(res.body.username).toBe("joshua2410");
-    })
-  })
-  it("POST 404 not accept a friend request, user not found", () =>{
+      .post("/api/users/example123/acceptfriend")
+      .send({
+        username: "joshua2410",
+      })
+      .expect(201)
+      .then((res: any) => {
+        expect(res.body.username).toBe("joshua2410");
+      });
+  });
+  it("POST 404 not accept a friend request, user not found", () => {
     return request(app)
-    .post("/api/users/example123/acceptfriend")
-    .send({
-      username: "joshua24103456"
-    })
-    .expect(404)
-    .then(( res: any) => {
-      expect(res.body.msg).toBe("not found");
-    })
-  })
-})
+      .post("/api/users/example123/acceptfriend")
+      .send({
+        username: "joshua24103456",
+      })
+      .expect(404)
+      .then((res: any) => {
+        expect(res.body.msg).toBe("not found");
+      });
+  });
+});
 
-describe("GET api/users/:userid/friends and friendrequests",() => {
+describe("GET api/users/:userid/friends and friendrequests", () => {
   it("GET an array with the friends list of a user by user username", () => {
     return request(app)
       .get("/api/users/example123/friends")
       .expect(200)
       .then((res: any) => {
-        console.log(res.body)
+        console.log(res.body);
         expect(res.body[0].username).toBe("Martin123");
       });
-  })
+  });
   it("GET an array with the friendsRequest list of a user by user username", () => {
     return request(app)
       .get("/api/users/example123/friendrequests")
       .expect(200)
       .then((res: any) => {
-        console.log(res.body)
+        console.log(res.body);
         expect(res.body[0].username).toBe("joshua241");
       });
-  })
-})
+  });
+});
 
-describe("POST api/users/:borrower/books/:bookid/requestlend/:owner",() => {
+describe("POST api/users/:borrower/books/:bookid/requestlend/:owner", () => {
   it("POST a book request from one user to another ", () => {
     return request(app)
-    .post("/api/users/example123/books/1781100500/requestlend/joshua2410")
-    .expect(201)
-  })
-})
+      .post("/api/users/example123/books/1781100500/requestlend/joshua2410")
+      .expect(201);
+  });
+});
 
-describe.only("GET api/users/:owner/books/:bookid/requestList",() => {
+describe("GET api/users/:owner/books/:bookid/requestList", () => {
   it("GET all borrow request of a book by bookid and usename of the owner", () => {
     return request(app)
-    .post("/api/users/joshua2410/books/1781100500/requestList")
-    .expect(200)
-    .then((res: any) => {
-      console.log(res.body)
-      //expect(res.body.username).toBe("joshua241");
-    });
-  })
-})
+      .get("/api/users/joshua2410/books/1781100500/requestlist")
+      .expect(200)
+      .then((res: any) => {
+        console.log(res.body);
+        //expect(res.body.username).toBe("joshua241");
+      });
+  });
+});
+
+describe("POST api/users/:owner/books/:bookid/acceptrequest", () => {
+  it("POST an accepted response to loaning book ", () => {
+    return request(app)
+      .post("/api/users/joshua2410/books/1781100500/acceptrequest/example123")
+      .expect(201);
+  });
+});
+
+describe.only("get api/users/:owner/lending", () => {
+  it("GET an accepted response to loaning book ", () => {
+    return request(app)
+      .get("/api/users/joshua2410/lending")
+      .expect(200)
+      .then((res: any) => {
+        console.log(res.body);
+      });
+  });
+});
