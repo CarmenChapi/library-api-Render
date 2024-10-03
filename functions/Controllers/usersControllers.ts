@@ -25,6 +25,7 @@ const {
   removeFriendRequest,
   removeBorrowRequest,
   returnBorrowedBookById,
+  fetchEndpoints
 } = require("../Models/usersModels");
 
 exports.postUser = (req: Request, res: Response, next: NextFunction) => {
@@ -330,3 +331,15 @@ exports.returnBookById = (req: Request, res: Response, next: NextFunction) => {
       next(err);
     });
 };
+
+exports.getEndpoints= (req: Request, res: Response, next: NextFunction) => {
+
+    fetchEndpoints()
+    .then((data : any) => {
+      res.status(200).send(data);
+    })
+    .catch((err: any) => {
+      next(err);
+    });
+};
+

@@ -417,3 +417,15 @@ describe("DELETE api/users/:borrower/returnbook/:owner/:bookid", () => {
       .expect(204);
   });
 });
+
+describe.only("GET get api/users/endpoints get all endpoints", () => {
+  it("GET api/users/endpoints", () =>{
+    return request (app)
+    .get("/api/endpoints")      
+    .expect(200)
+    .then((res: any) => {
+      expect(typeof res.body).toBe('object');
+    });
+
+  })
+})
