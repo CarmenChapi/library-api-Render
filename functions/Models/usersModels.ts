@@ -1,5 +1,5 @@
 import { db } from "../connection";
-
+const fs = require("fs/promises")
 exports.newUser = (userData: any) => {
   return db
     .collection("users")
@@ -437,3 +437,10 @@ exports.returnBorrowedBookById = (
       })
   );
 };
+
+exports.fetchEndpoints = () => {
+  return fs.readFile(`${__dirname}/../endpoints.json`, "utf-8")
+  .then((data : any) =>{
+    return JSON.parse(data);
+})
+}
