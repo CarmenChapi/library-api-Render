@@ -18,6 +18,10 @@ const {
   getRequestsByBook,
   postAcceptedRequest,
   getLending,
+  deleteFriendRequestById,
+  deleteBorrowRequest,
+  returnBookById,
+  getBorrowing,
 } = require("../Controllers/usersControllers");
 
 const usersRouter = express.Router();
@@ -46,10 +50,15 @@ usersRouter
   .get(getWishlistBookById)
   .delete(deleteWishlistBookById);
 
-usersRouter.route("/:username/friendrequests").post(postFriendRequest);
+usersRouter
+  .route("/:username/friendrequests")
+  .post(postFriendRequest)
+  .get(getFriendRequestsList);
 usersRouter.route("/:username/acceptfriend").post(postAceptFriendRequest);
+usersRouter
+  .route("/:username/friendrequests/:rejectfriend")
+  .delete(deleteFriendRequestById);
 usersRouter.route("/:username/friends").get(getFriendsList);
-usersRouter.route("/:username/friendrequests").get(getFriendRequestsList);
 usersRouter
   .route("/:borrower/books/:bookid/requestlend/:owner")
   .post(requestBookToBorrow);
@@ -62,5 +71,14 @@ usersRouter
   .post(postAcceptedRequest);
 
 usersRouter.route("/:owner/lending").get(getLending);
+usersRouter
+  .route("/:username/borrowrequest/:bookid")
+  .delete(deleteBorrowRequest);
+
+usersRouter
+  .route("/:borrower/returnbook/:owner/:bookid")
+  .delete(returnBookById);
+
+usersRouter.route("/:borrower/borrowing").get(getBorrowing);
 
 module.exports = usersRouter;

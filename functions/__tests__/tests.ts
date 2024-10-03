@@ -37,7 +37,7 @@ describe("get /api/users/:username", () => {
   });
 });
 
-describe.only("POST /api/users/:username/books", () => {
+describe("POST /api/users/:username/books", () => {
   it("adding a book to the book collection", () => {
     return request(app)
       .post("/api/users/joshua2410/books")
@@ -341,6 +341,14 @@ describe("POST api/users/:borrower/books/:bookid/requestlend/:owner", () => {
   });
 });
 
+describe("POST api/users/:owner/books/:bookid/acceptrequest", () => {
+  it("POST an accepted response to loaning book ", () => {
+    return request(app)
+      .post("/api/users/joshua2410/books/1781100500/acceptrequest/example123")
+      .expect(201);
+  });
+});
+
 describe("GET api/users/:owner/books/:bookid/requestList", () => {
   it("GET all borrow request of a book by bookid and usename of the owner", () => {
     return request(app)
@@ -353,21 +361,59 @@ describe("GET api/users/:owner/books/:bookid/requestList", () => {
   });
 });
 
-describe("POST api/users/:owner/books/:bookid/acceptrequest", () => {
-  it("POST an accepted response to loaning book ", () => {
+describe("DELETE api/users/:username/friendrequests/:rejectfriend", () => {
+  it("DELETE: reject a friend request", () => {
     return request(app)
-      .post("/api/users/joshua2410/books/1781100500/acceptrequest/example123")
-      .expect(201);
+      .delete("/api/users/example123/friendrequests/joshua241")
+      .expect(204);
   });
 });
 
-describe.only("get api/users/:owner/lending", () => {
-  it("GET an accepted response to loaning book ", () => {
+describe("get api/users/:owner/lending", () => {
+  it("GET list of all books user is lending out", () => {
     return request(app)
       .get("/api/users/joshua2410/lending")
       .expect(200)
       .then((res: any) => {
         console.log(res.body);
       });
+  });
+});
+
+describe("get api/users/:owner/borrowing", () => {
+  it("GET list of all books user is borrowing", () => {
+    return request(app)
+      .get("/api/users/example123/borrowing")
+      .expect(200)
+      .then((res: any) => {
+        console.log(res.body);
+      });
+  });
+});
+
+describe("DELETE api/users/:username/borrowrequest/:bookid", () => {
+  it("DELETE: reject a book borrow request", () => {
+    return request(app)
+      .delete("/api/users/joshua2410/borrowrequest/1781100500")
+      .expect(204);
+  });
+});
+
+describe("GET api/users/:username/books?lendable=true", () => {
+  it("GET: all books that are lendable by username", () => {
+    return request(app)
+      .get("/api/users/joshua2410/books?lendable=true")
+      .expect(200)
+      .then((res: any) => {
+        expect(res.body.length).toBe(2);
+      });
+  });
+});
+
+describe("DELETE api/users/:borrower/returnbook/:owner/:bookid", () => {
+  it("DELETE return borrowed book", () => {
+    return request(app)
+      .delete("/api/users/example123/returnbook/joshua2410/1781100500")
+      .expect(204);
   });
 });

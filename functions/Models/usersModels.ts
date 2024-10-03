@@ -48,19 +48,35 @@ exports.newBookLibrary = (book: any, username: string) => {
     });
 };
 
-exports.fetchBooksById = (username: string) => {
-  return db
-    .collection("users")
-    .doc(username)
-    .collection("books")
-    .get()
-    .then((books: any) => {
-      const bookArray: any[] = [];
-      books.forEach((book: any) => {
-        bookArray.push(book.data());
+exports.fetchBooksById = (username: string, lendable: string) => {
+  if (lendable === "true") {
+    return db
+      .collection("users")
+      .doc(username)
+      .collection("books")
+      .where("lendable", "==", true)
+      .get()
+      .then((books: any) => {
+        const bookArray: any[] = [];
+        books.forEach((book: any) => {
+          bookArray.push(book.data());
+        });
+        return bookArray;
       });
-      return bookArray;
-    });
+  } else {
+    return db
+      .collection("users")
+      .doc(username)
+      .collection("books")
+      .get()
+      .then((books: any) => {
+        const bookArray: any[] = [];
+        books.forEach((book: any) => {
+          bookArray.push(book.data());
+        });
+        return bookArray;
+      });
+  }
 };
 
 exports.removeBookById = (username: string, bookid: string) => {
@@ -336,6 +352,25 @@ exports.acceptRequest = (owner: string, bookId: string, borrower: string) => {
     });
 };
 
+exports.removeFriendRequest = (username: string, rejectfriend: string) => {
+  return db
+    .collection("users")
+    .doc(username)
+    .collection("friendRequests")
+    .doc(rejectfriend)
+    .delete();
+};
+
+exports.removeBorrowRequest = (username: string, bookid: string) => {
+  console.log("you here", username, bookid);
+  return db
+    .collection("users")
+    .doc(username)
+    .collection("borrowRequest")
+    .doc(bookid)
+    .delete();
+};
+
 exports.fetchLending = (owner: any) => {
   return db
     .collection("users")
@@ -350,4 +385,55 @@ exports.fetchLending = (owner: any) => {
       });
       return booksArray;
     });
+};
+
+exports.fetchBorrowing = (borrower: any) => {
+  console.log(borrower, "you here");
+  return db
+    .collection("users")
+    .doc(borrower)
+    .collection("borrowed")
+    .get()
+    .then((books: any) => {
+      const booksArray: any[] = [];
+      books.forEach((book: any) => {
+        booksArray.push({ [book.id]: book.data() });
+        console.log(book.id);
+      });
+      return booksArray;
+    });
+};
+
+exports.returnBorrowedBookById = (
+  borrower: string,
+  owner: string,
+  bookid: string
+) => {
+  //remove book from borrowers borrowed
+  return (
+    db
+      .collection("users")
+      .doc(borrower)
+      .collection("borrowed")
+      .doc(bookid)
+      .delete()
+      //remove book from owners lending
+      .then(() => {
+        return db
+          .collection("users")
+          .doc(owner)
+          .collection("lending")
+          .doc(bookid)
+          .delete();
+      })
+      //set owners book isLendable to true
+      .then(() => {
+        return db
+          .collection("users")
+          .doc(owner)
+          .collection("books")
+          .doc(bookid)
+          .set({ lendable: true }, { merge: true });
+      })
+  );
 };
