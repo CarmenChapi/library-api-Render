@@ -22,8 +22,6 @@ exports.fetchUserById = (id: string) => {
     .doc(id)
     .get()
     .then((user) => {
-      console.log(user);
-      console.log(user.data());
       return user.data();
     });
 };
@@ -66,7 +64,6 @@ exports.fetchBooksById = (username: string) => {
 };
 
 exports.removeBookById = (username: string, bookid: string) => {
-  console.log(username, bookid);
   return db
     .collection("users")
     .doc(username)
@@ -96,7 +93,6 @@ exports.newBookWishList = (book: any, username: string) => {
 };
 
 exports.removeWishlistBookById = (username: string, bookid: string) => {
-  console.log(username, bookid);
   return db
     .collection("users")
     .doc(username)
@@ -175,8 +171,7 @@ exports.addFriendRequest = (username: string, friendRequest: any) => {
     });
 };
 
-
-exports.acceptFriendRequest= (username: string, friendToAccept: any) => {
+exports.acceptFriendRequest = (username: string, friendToAccept: any) => {
   return db
     .collection("users")
     .doc(username)
@@ -184,9 +179,8 @@ exports.acceptFriendRequest= (username: string, friendToAccept: any) => {
     .doc(friendToAccept.username)
     .get()
     .then((user) => {
-   
       const userData = user.data();
-      console.log(userData,'<----userData Model')
+
       if (userData) {
         return db
           .collection("users")
@@ -196,19 +190,19 @@ exports.acceptFriendRequest= (username: string, friendToAccept: any) => {
           .set(friendToAccept)
           .then(() => {
             return db
-            .collection("users")
-            .doc(username)
-            .collection("friendRequests")
-            .doc(friendToAccept.username)
-            .delete()
+              .collection("users")
+              .doc(username)
+              .collection("friendRequests")
+              .doc(friendToAccept.username)
+              .delete();
           })
-          .then(()=>{
+          .then(() => {
             return db
-          .collection("users")
-          .doc(friendToAccept.username)
-          .collection("friends")
-          .doc(username)
-          .set({"username": username})
+              .collection("users")
+              .doc(friendToAccept.username)
+              .collection("friends")
+              .doc(username)
+              .set({ username: username });
           })
           .then(() => {
             return db
@@ -217,7 +211,6 @@ exports.acceptFriendRequest= (username: string, friendToAccept: any) => {
               .collection("friends")
               .doc(friendToAccept.username)
               .get();
-
           })
           .then((user: any) => {
             return user.data();
@@ -230,58 +223,131 @@ exports.acceptFriendRequest= (username: string, friendToAccept: any) => {
 
 exports.fetchFriendsList = (username: string) => {
   return db
-  .collection("users")
-  .doc(username)
-  .collection("friends")
-  .get()
-  .then((friends : any) => {
-    const friendsArray: any[] = [];
-    console.log(friends)
-    friends.forEach((friend: any) => {
-      friendsArray.push(friend.data());
+    .collection("users")
+    .doc(username)
+    .collection("friends")
+    .get()
+    .then((friends: any) => {
+      const friendsArray: any[] = [];
+      friends.forEach((friend: any) => {
+        friendsArray.push(friend.data());
+      });
+      return friendsArray;
     });
-    return friendsArray;
-  })
-}
+};
 
 exports.fetchReqFriendsList = (username: string) => {
   return db
-  .collection("users")
-  .doc(username)
-  .collection("friendRequests")
-  .get()
-  .then((friends : any) => {
-    const friendsArray: any[] = [];
-    console.log(friends)
-    friends.forEach((friend: any) => {
-      friendsArray.push(friend.data());
+    .collection("users")
+    .doc(username)
+    .collection("friendRequests")
+    .get()
+    .then((friends: any) => {
+      const friendsArray: any[] = [];
+      friends.forEach((friend: any) => {
+        friendsArray.push(friend.data());
+      });
+      return friendsArray;
     });
-    return friendsArray;
-  })
-}
+};
 
-exports.postRequestToBorrow= (borrower: string, owner: string, bookId: string) => {
+exports.postRequestToBorrow = (
+  borrower: string,
+  owner: string,
+  bookId: string
+) => {
   return db
-  .collection("users")
-  .doc(owner)
-  .collection("borrowRequest")
-  .doc(borrower  +'_'+ bookId)
-  .set({"username" : borrower, "bookRequest" : bookId})
-}
+    .collection("users")
+    .doc(owner)
+    .collection("books")
+    .doc(bookId)
+    .get()
+    .then((book: any) => {
+      return db
+        .collection("users")
+        .doc(owner)
+        .collection("borrowRequest")
+        .doc(bookId)
+        .set(
+          { bookInfo: book.data().bookInfo, [borrower]: Date.now() },
+          { merge: true }
+        );
+    });
+};
 
 exports.getRequestToBorrow = (owner: string, bookId: string) => {
   return db
-  .collection("users")
-  .doc(owner)
-  .collection("borrowRequest")
-  .get()
-  .then((requestInfo : any) => {
-    const requestArray: any[] = [];
-    console.log(requestInfo)
-    requestInfo.forEach((request: any) => {
-      console.log(request.data())
-      requestArray.push(request.data());
+    .collection("users")
+    .doc(owner)
+    .collection("borrowRequest")
+    .doc(bookId)
+    .get()
+    .then((requestInfo: any) => {
+      return requestInfo.data();
     });
-    return requestArray;
-  })
-}
+};
+
+exports.acceptRequest = (owner: string, bookId: string, borrower: string) => {
+  return db
+    .collection("users")
+    .doc(owner)
+    .collection("books")
+    .doc(bookId)
+    .get()
+    .then((book: any) => {
+      return db
+        .collection("users")
+        .doc(owner)
+        .collection("lending")
+        .doc(bookId)
+        .set({ bookInfo: book.data().bookInfo, borrower: borrower });
+    })
+    .then(() => {
+      return db
+        .collection("users")
+        .doc(owner)
+        .collection("books")
+        .doc(bookId)
+        .update({ isLentTo: borrower, lendable: false });
+    })
+    .then(() => {
+      return db
+        .collection("users")
+        .doc(owner)
+        .collection("books")
+        .doc(bookId)
+        .get();
+    })
+    .then((book: any) => {
+      return db
+        .collection("users")
+        .doc(borrower)
+        .collection("borrowed")
+        .doc(bookId)
+        .set({ isLentFrom: owner, bookInfo: book.data().bookInfo });
+    })
+    .then(() => {
+      return db
+        .collection("users")
+        .doc(owner)
+        .collection("borrowRequest")
+        .doc(bookId)
+        .delete();
+    });
+};
+
+exports.fetchLending = (owner: any) => {
+  return db
+    .collection("users")
+    .doc(owner)
+    .collection("lending")
+    .get()
+    .then((books: any) => {
+      const booksArray: any[] = [];
+      books.forEach((book: any) => {
+        booksArray.push({ [book.id]: book.data() });
+        console.log(book.id);
+      });
+      return booksArray;
+    });
+};
