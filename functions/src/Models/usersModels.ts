@@ -1,4 +1,4 @@
-import { db } from "../connection";
+import { db } from "../../connection";
 const fs = require("fs/promises")
 exports.newUser = (userData: any) => {
   return db
@@ -10,7 +10,7 @@ exports.newUser = (userData: any) => {
         .collection("users")
         .doc(userData.username)
         .get()
-        .then((user) => {
+        .then((user : any) => {
           return user.data();
         });
     });
@@ -21,7 +21,7 @@ exports.fetchUserById = (id: string) => {
     .collection("users")
     .doc(id)
     .get()
-    .then((user) => {
+    .then((user:any) => {
       return user.data();
     });
 };
@@ -42,7 +42,7 @@ exports.newBookLibrary = (book: any, username: string) => {
         .collection("books")
         .doc(book.bookInfo.industryIdentifiers[0].identifier)
         .get()
-        .then((book) => {
+        .then((book: any) => {
           return book.data();
         });
     });
