@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const connection_1 = require("../../connection");
+const connection_1 = require("./../connection");
 const fs = require("fs/promises");
 exports.newUser = (userData) => {
     return connection_1.db

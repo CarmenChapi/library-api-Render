@@ -1,4 +1,5 @@
-import { db } from "../../connection";
+import { db } from "./../connection"
+
 const fs = require("fs/promises")
 exports.newUser = (userData: any) => {
   return db
