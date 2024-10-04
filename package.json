@@ -6,7 +6,7 @@
     "serve": "npm run build",
     "shell": "firebase functions:shell",
     "build": "npm install",
-    "start": "tsc -w && node functions/src/index.js",
+    "start": "tsc",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test": "jest"
